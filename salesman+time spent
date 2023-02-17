@@ -1,0 +1,53 @@
+# Python3 program to implement traveling salesman
+# problem using naive approach.
+from sys import maxsize
+from itertools import permutations
+import numpy as np
+V = 4
+import time
+
+
+
+
+# implementation of traveling Salesman Problem
+def travellingSalesmanProblem(graph, s):
+
+	# store all vertex apart from source vertex
+	vertex = []
+	for i in range(V):
+		if i != s:
+			vertex.append(i)
+
+	# store minimum weight Hamiltonian Cycle
+	min_path = maxsize
+	next_permutation=permutations(vertex)
+	for i in next_permutation:
+
+		# store current Path weight(cost)
+		current_pathweight = 0
+
+		# compute current path weight
+		k = s
+		for j in i:
+			current_pathweight += graph[k][j]
+			k = j
+		current_pathweight += graph[k][s]
+
+		# update minimum
+		min_path = min(min_path, current_pathweight)
+		
+	return min_path
+
+
+
+
+# Mesure du temps d'exécution
+start_time = time.time()
+# Driver Code
+#if __name__ == "__main__":
+for i in range (1,1000,10):
+	graph= np.random.randint(10, size=(i,4))
+	s = 0
+	print(travellingSalesmanProblem(graph, s))
+	end_time = time.time()
+	print("Temps d'exécution : ", end_time - start_time, " secondes")
