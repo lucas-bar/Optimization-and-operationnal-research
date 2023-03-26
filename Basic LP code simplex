@@ -1,0 +1,50 @@
+from ortools.linear_solver import pywraplp
+
+# EXERCISE1
+
+# Create the linear solver with the GLOP backend.
+solver = pywraplp.Solver.CreateSolver('GLOP')
+
+# Define the decision variables.
+x1 = solver.NumVar(0, solver.infinity(), 'x1')
+x2 = solver.NumVar(0, solver.infinity(), 'x2')
+
+
+# Define the objective function.
+objective = solver.Objective()
+objective.SetCoefficient(x1, 22)
+objective.SetCoefficient(x2, 28)
+objective.SetMaximization()
+
+# Define the constraints.
+constraint1 = solver.Constraint(-solver.infinity(), 3400)
+constraint1.SetCoefficient(x1, 8)
+constraint1.SetCoefficient(x2,10)
+
+constraint2 = solver.Constraint(0, 960)
+constraint2.SetCoefficient(x1, 2)
+constraint2.SetCoefficient(x2, 3)
+
+"""constraint3 = solver.Constraint(0, 300)
+constraint3.SetCoefficient(x1, 2)
+constraint3.SetCoefficient(x2, 1)"""
+
+# Solve the problem.
+status = solver.Solve()
+
+# Print the solution.
+if status == pywraplp.Solver.OPTIMAL:
+    print('Objective value =', solver.Objective().Value())
+    print('x1 =', x1.solution_value())
+    print('x2 =', x2.solution_value())
+else:
+    print('The problem does not have an optimal solution.')
+#SOLUTION:
+Objective value = 9459.999999999998
+x1 = 149.99999999999977
+x2 = 220.00000000000014
+
+
+#By repeting this code with all the exercise we can obtain the solutions of all the exercise from the course.
+#We just need to adapt the coefficient in the objective function and the number of variable.
+#We also need to change the constraints depends on the exercise
