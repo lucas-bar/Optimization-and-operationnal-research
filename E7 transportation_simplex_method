@@ -1,0 +1,99 @@
+import pandas as pd 
+import numpy as np
+data=pd.read_csv("transportation.csv")
+supply=data.iloc[:-1,-1].values.tolist()
+demand=data.iloc[-1,1:-1].values.tolist()
+costs=data.iloc[:-1,1:-1].values.tolist()
+data
+def northwest_corner_rule(supply, demand, costs):
+    m, n = len(supply), len(demand)
+    allocation = np.zeros((m, n))
+
+    i, j = 0, 0
+    while i < m and j < n:
+        if supply[i] == 0:
+            i += 1
+            continue
+        if demand[j] == 0:
+            j += 1
+            continue
+
+        quantity = min(supply[i], demand[j])
+        allocation[i, j] = quantity
+        supply[i] -= quantity
+        demand[j] -= quantity
+
+        if supply[i] == 0:
+            i += 1
+        if demand[j] == 0:
+            j += 1
+
+    return allocation
+
+alloc = northwest_corner_rule(supply, demand, costs)
+print(alloc)
+
+def transportation_simplex(costs, supply, demand):
+    m, n = len(supply), len(demand)
+
+    # Apply the Northwest Corner Rule to obtain an initial feasible solution
+    allocation = northwest_corner_rule(supply, demand, costs)
+
+    # Initialization of variables
+    u = np.zeros(m)
+    v = np.zeros(n)
+
+    # Maximum number of iterations
+    max_iterations = m + n - 1
+
+    # Main loop
+    iteration = 0
+    while True:
+        # Calculate the potentials u
+        u[0] = 0  # Arbitrarily set to zero
+        for i in range(m):
+            for j in range(n):
+                if allocation[i, j] != 0 and v[j] == 0:
+                    v[j] = costs[i][j] - u[i]
+
+        # Calculate the reduced costs
+        reduced_costs = np.zeros((m, n))
+        for i in range(m):
+            for j in range(n):
+                reduced_costs[i][j] = costs[i][j] - u[i] - v[j]
+
+        # Check for optimality
+        if np.all(reduced_costs >= 0) or iteration >= max_iterations:
+            break
+        
+        # Find the entering variable (minimum of negative reduced costs)
+        min_cost = np.inf
+        min_i, min_j = None, None
+        for i in range(m):
+            for j in range(n):
+                if reduced_costs[i][j] < min_cost:
+                    min_cost = reduced_costs[i][j]
+                    min_i, min_j = i, j
+                    
+        entering_i, entering_j = min_i, min_j
+        
+        # Calculate the displacement vector
+        delta = np.zeros((m, n))
+        delta[entering_i][entering_j] = min(supply[entering_i], demand[entering_j])
+
+        # Update allocation, supply, and demand variables
+        allocation += delta
+        supply[entering_i] -= delta[entering_i][entering_j]
+        demand[entering_j] -= delta[entering_i][entering_j]
+        
+        iteration += 1
+
+    return allocation
+
+
+
+# Exemple d'utilisation avec les données fournies
+
+allocation = transportation_simplex(costs, supply, demand)
+print("Allocation optimale :")
+print(allocation)
